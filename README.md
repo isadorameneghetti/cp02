@@ -11,7 +11,6 @@
 | **Isadora Meneghetti** | RM556326 |
 | **Gustavo Ikeda** | RM554718 |
 | **Henrique Azevedo** | RM556707 |
-| **Renato Alvarenga** | RM556403 |
 | **Victoria Moura** | RM555474 |
 
 ---
@@ -19,6 +18,18 @@
 ## SOBRE O PROJETO
 
 Este é um aplicativo mobile de **Sistema de Consultas Médicas** desenvolvido em React Native com TypeScript como parte das atividades da disciplina. O aplicativo permite visualizar e gerenciar consultas médicas, com funcionalidades completas de gerenciamento de status e interface intuitiva.
+
+### Evolução do Projeto
+
+| Aula | Data | Conteúdo |
+|------|------|----------|
+| **Aula 1** | 03/03/2026 | MVP Simples - Estrutura inicial do app |
+| **Aula 2** | 10/03/2026 | TypeScript + Types/Interfaces - Modelagem do domínio |
+| **Aula 3** | 17/03/2026 | Componentização - Extração do ConsultaCard |
+| **Aula 4** | 24/03/2026 | Separação de Estilos + Screens - Arquitetura profissional |
+| **Aula 5** | 31/03/2026 | useState + AsyncStorage + useEffect - Persistência de dados |
+| **Aula 6** | 07/04/2026 | Arrays no AsyncStorage + Service Layer + React Navigation |
+| **CP2** | 14/04/2026 | Refatoração de Styles - Separação completa de estilos |
 
 ### Funcionalidades Implementadas
 
@@ -30,14 +41,17 @@ Este é um aplicativo mobile de **Sistema de Consultas Médicas** desenvolvido e
 - Tipagem forte com TypeScript
 - Interface responsiva com cards
 - Feedback visual baseado no status
-- ScrollView para conteúdo extenso
-- StatusBar personalizada
+- Persistência de dados com AsyncStorage
+- Navegação entre telas com React Navigation
+- Service layer para organização do código
+- Arquitetura profissional com separação de responsabilidades
+- Estilos completamente separados da lógica
 
 ---
 
 ## LINK DO REPOSITÓRIO
 
-**Repositório principal:** [https://github.com/isadorameneghetti/sistema-consultas-mobile](https://github.com/isadorameneghetti/sistema-consultas-mobile)
+**Repositório principal:** [https://github.com/isadorameneghetti/cp02-mobile](https://github.com/isadorameneghetti/cp02-mobile)
 
 **Branch do projeto:** `main`
 
@@ -45,21 +59,24 @@ Este é um aplicativo mobile de **Sistema de Consultas Médicas** desenvolvido e
 
 ## CONCEITOS DE REACT NATIVE UTILIZADOS
 
-Este projeto foi desenvolvido aplicando todos os conceitos abordados em aula:
-
 | Conceito | Descrição |
 |----------|-----------|
 | **Componentes Funcionais** | Uso de funções como componentes React |
-| **Hooks (useState)** | Gerenciamento de estado da consulta |
-| **Props** | Passagem de dados entre componentes (quando aplicável) |
+| **Hooks (useState, useEffect)** | Gerenciamento de estado e ciclo de vida |
+| **Props** | Passagem de dados entre componentes |
+| **Props Opcionais** | `onConfirmar?` e `onCancelar?` para flexibilidade |
+| **Callbacks** | Comunicação filho → pai mantendo fluxo unidirecional |
 | **TypeScript** | Tipagem forte para prevenir erros |
-| **Interfaces e Types** | Definição de modelos de dados |
+| **Interfaces e Types** | Definição de modelos de dados (globais vs locais) |
 | **Renderização Condicional** | Exibição de botões baseada no status |
 | **Estilização com StyleSheet** | Criação de estilos organizados |
+| **Separação de Estilos** | Arquivos dedicados apenas para estilos |
 | **ScrollView** | Suporte a rolagem de conteúdo |
+| **FlatList** | Renderização eficiente de listas grandes |
 | **StatusBar** | Personalização da barra de status |
 | **Flexbox** | Layout responsivo e adaptável |
-| **Shadow/Elevation** | Efeitos visuais em cards |
+| **Platform.select** | Estilos específicos por plataforma (Web, iOS, Android) |
+| **Barrel Exports** | Exportação centralizada com index.ts |
 
 ---
 
@@ -73,6 +90,7 @@ Este projeto foi desenvolvido aplicando todos os conceitos abordados em aula:
 | **Optional Properties** | Campos opcionais (telefone, descrição, observações) |
 | **Type Safety** | Garantia de tipos em tempo de compilação |
 | **Import/Export** | Modularização do código |
+| **Types Locais vs Globais** | Separação entre tipos específicos de componente e tipos compartilhados |
 
 ---
 
@@ -129,6 +147,74 @@ interface Consulta {
 
 ---
 
+## ESTRUTURA DE PASTAS
+
+```
+cp02/
+│
+├── App.tsx                          # Ponto de entrada
+├── package.json
+├── tsconfig.json
+├── README.md
+│
+└── src/
+    ├── components/                  # Componentes reutilizáveis
+    │   ├── ConsultaCard.tsx
+    │   ├── EmptyState.tsx
+    │   ├── Loading.tsx
+    │   ├── Button.tsx
+    │   ├── Input.tsx
+    │   └── index.ts
+    │
+    ├── screens/                     # Telas da aplicação
+    │   ├── HomeScreen.tsx
+    │   ├── ConsultasListScreen.tsx
+    │   ├── ConsultaDetalhesScreen.tsx
+    │   ├── NovaConsultaScreen.tsx
+    │   ├── Login.tsx
+    │   ├── CadastroPaciente.tsx
+    │   ├── MinhasConsultas.tsx
+    │   ├── Admin.tsx
+    │   └── index.ts
+    │
+    ├── styles/                      # Estilos separados da lógica
+    │   ├── app.styles.ts
+    │   ├── consultaCard.styles.ts
+    │   ├── consultasList.styles.ts
+    │   ├── consultaDetalhes.styles.ts
+    │   ├── home.styles.ts
+    │   ├── login.styles.ts
+    │   ├── novaConsulta.styles.ts
+    │   ├── cadastroPaciente.styles.ts
+    │   ├── minhasConsultas.styles.ts
+    │   └── index.ts
+    │
+    ├── interfaces/                  # Interfaces globais
+    │   ├── consulta.ts
+    │   └── medico.ts
+    │
+    ├── types/                       # Types globais
+    │   ├── especialidade.ts
+    │   ├── paciente.ts
+    │   ├── statusConsulta.ts
+    │   └── index.ts
+    │
+    ├── services/                    # Service layer
+    │   ├── storage.ts
+    │   ├── consultasService.ts
+    │   ├── apiService.ts
+    │   └── index.ts
+    │
+    ├── navigation/                  # Configuração de navegação
+    │   └── index.tsx
+    │
+    └── utils/                       # Utilitários
+        ├── formatters.ts
+        └── validators.ts
+```
+
+---
+
 ## COMO EXECUTAR O PROJETO
 
 ### Pré-requisitos
@@ -136,65 +222,96 @@ interface Consulta {
 - [npm](https://www.npmjs.com/) ou [yarn](https://yarnpkg.com/)
 - [Expo CLI](https://docs.expo.dev/get-started/installation/)
 - [Expo Go](https://expo.dev/client) no celular (iOS/Android)
-- Visual Studio Code (recomendado)
 
 ### Passos para executar
 
 1. **Clone o repositório**
 ```bash
-git clone https://github.com/isadorameneghetti/sistema-consultas-mobile
+git clone https://github.com/isadorameneghetti/cp02-mobile.git
 ```
 
 2. **Acesse a pasta do projeto**
 ```bash
-cd consultas-medicas
+cd cp02-mobile
 ```
 
 3. **Instale as dependências**
 ```bash
 npm install
-# ou
-yarn install
 ```
 
 4. **Execute o projeto**
 ```bash
 npx expo start
-# ou
-npm start
 ```
 
 5. **Abra no celular**
 - Escaneie o QR Code com o aplicativo Expo Go (Android)
 - Ou escaneie com a câmera do iPhone (iOS)
 
+6. **Para abrir no navegador (Web)**
+- Após iniciar o expo, pressione a tecla `w`
+
 ---
 
 ## COMO USAR O APLICATIVO
 
-### Tela Principal
+### Tela Principal (HomeScreen)
 
-Ao iniciar o aplicativo, você verá:
+Ao iniciar o aplicativo, você verá um menu com cards:
 
-1. **Cabeçalho**: Título do sistema e número da consulta
-2. **Card da Consulta**: Informações completas organizadas em seções
-3. **Status Badge**: Indicador visual do status atual
-4. **Seção do Médico**: Nome, CRM e especialidade
-5. **Seção do Paciente**: Nome, CPF, email e telefone
-6. **Seção da Consulta**: Data, valor e observações
-7. **Botões de Ação**: Confirmar/Cancelar (quando aplicável)
+1. **Minhas Consultas**: Lista todas as consultas com filtros
+2. **Agendar Consulta**: Formulário para nova consulta
+3. **Meu Perfil**: Dados do usuário
+4. **Configurações**: Ajustes do app
 
-### Gerenciamento de Status
+### Tela de Lista de Consultas (ConsultasListScreen)
 
-- **Status "agendada"**: Exibe botões para confirmar ou cancelar
-- **Status "confirmada"**: Mostra mensagem de sucesso
-- **Status "cancelada"**: Mostra mensagem de cancelamento
+- Exibe todas as consultas do usuário
+- Filtros por status: Todas, Agendadas, Confirmadas
+- Cada consulta tem botões: Confirmar, Cancelar, Ver Detalhes
 
-### Funcionalidades
+### Tela de Detalhes (ConsultaDetalhesScreen)
 
-- **Confirmar Consulta**: Altera status para "confirmada"
-- **Cancelar Consulta**: Altera status para "cancelada"
-- **Visualização Completa**: Todos os dados em um único card
+- Exibe informações completas da consulta
+- Permite confirmar ou cancelar (dependendo do status)
+
+### Tela Admin (Administrativa)
+
+- Cadastrar especialidades
+- Cadastrar médicos
+- Criar consultas de teste
+
+---
+
+## FLUXO DE COMUNICAÇÃO (Pai → Filho → Pai)
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    HomeScreen.tsx (PAI)                    │
+│                                                             │
+│  const [consultas, setConsultas] = useState(...) ← ESTADO  │
+│                                                             │
+│  function confirmarConsulta(id) {                          │
+│    setConsultas(consultas.map(...))                        │
+│  }                                                          │
+│                                                             │
+└────────────────────┬────────────────────────────────────────┘
+                     │
+                     │ passa props ↓
+                     │ • consulta
+                     │ • onConfirmar={confirmarConsulta}
+                     │
+┌────────────────────▼────────────────────────────────────────┐
+│              ConsultaCard.tsx (FILHO)                      │
+│                                                             │
+│  function ConsultaCard({ consulta, onConfirmar }) {        │
+│    return (                                                │
+│      <Button onPress={() => onConfirmar(consulta.id)} />   │
+│    );                                                      │
+│  }                                                          │
+└─────────────────────────────────────────────────────────────┘
+```
 
 ---
 
@@ -202,78 +319,21 @@ Ao iniciar o aplicativo, você verá:
 
 ```text
 === SISTEMA DE CONSULTAS ===
-Consulta #1
+Bem-vindo ao sistema!
 
 ┌─────────────────────────────────┐
-│        AGENDADA                 │
-├─────────────────────────────────┤
-│ 👨‍⚕️ MÉDICO                      │
-│ Dr. Roberto Silva               │
-│ CRM: CRM12345                   │
-│ Cardiologia                     │
-├─────────────────────────────────┤
-│ 👤 PACIENTE                     │
-│ Carlos Andrade                  │
-│ CPF: 123.456.789-00             │
-│ Email: carlos@email.com         │
-│ Tel: (11) 98765-4321            │
-├─────────────────────────────────┤
-│ 📅 DADOS DA CONSULTA            │
-│ Data: 10/03/2026                │
-│ Valor: R$ 350,00                │
-│ Consulta de rotina              │
-├─────────────────────────────────┤
-│ [Confirmar Consulta]            │
-│ [Cancelar Consulta]             │
+│            📅                    │
+│       Minhas Consultas           │
+│  Visualize e gerencie suas       │
+│       consultas                  │
 └─────────────────────────────────┘
-```
 
-### Após Confirmar
-
-```text
 ┌─────────────────────────────────┐
-│        CONFIRMADA ✅            │
-├─────────────────────────────────┤
-│ ... (mesmas informações)        │
-├─────────────────────────────────┤
-│ ✓ Consulta confirmada com       │
-│   sucesso!                      │
+│            ➕                    │
+│       Agendar Consulta           │
+│   Agende uma nova consulta       │
+│            médica                │
 └─────────────────────────────────┘
-```
-
-### Após Cancelar
-
-```text
-┌─────────────────────────────────┐
-│        CANCELADA ❌             │
-├─────────────────────────────────┤
-│ ... (mesmas informações)        │
-├─────────────────────────────────┤
-│ ✗ Consulta cancelada            │
-└─────────────────────────────────┘
-```
-
----
-
-## ESTRUTURA DE PASTAS
-
-```
-consultas-medicas/
-│
-├── src/
-│   ├── types/
-│   │   ├── especialidade.ts
-│   │   ├── paciente.ts
-│   │   └── statusConsulta.ts
-│   │
-│   └── interfaces/
-│       ├── medico.ts
-│       └── consulta.ts
-│
-├── App.tsx
-├── package.json
-├── tsconfig.json
-└── README.md
 ```
 
 ---
@@ -284,6 +344,8 @@ consultas-medicas/
 - **Expo**: Plataforma para desenvolvimento React Native
 - **TypeScript**: Superset JavaScript com tipagem estática
 - **React Hooks**: Gerenciamento de estado e efeitos
+- **React Navigation**: Navegação entre telas
+- **AsyncStorage**: Persistência local de dados
 - **Expo StatusBar**: Controle da barra de status
 
 ---
@@ -296,6 +358,10 @@ consultas-medicas/
 - Renderização condicional
 - Estilização com StyleSheet
 - Layout responsivo
+- Props opcionais
+- Callbacks para comunicação
+- Platform.select para estilos específicos
+- FlatList para listas eficientes
 
 ### TypeScript
 - Tipagem estática
@@ -303,6 +369,15 @@ consultas-medicas/
 - Propriedades opcionais
 - Union Types
 - Type Safety
+- Types locais vs globais
+
+### Arquitetura
+- Separação de responsabilidades (SRP)
+- Separação de estilos da lógica
+- Estrutura de telas (screens)
+- Barrel exports (index.ts)
+- Fluxo unidirecional de dados
+- Service layer para persistência
 
 ### Boas Práticas
 - Código documentado
@@ -310,6 +385,18 @@ consultas-medicas/
 - Nomenclatura consistente
 - Validações de dados
 - Feedback visual
+- Git Flow com branches e PRs
+
+---
+
+## DISTRIBUIÇÃO DAS TAREFAS (CP2)
+
+| Integrante | Telas | Branch |
+|------------|-------|--------|
+| **Isadora Meneghetti** (RM556326) | ConsultasListScreen + ConsultaDetalhesScreen | `feat/styles-consultas` |
+| **Gustavo Ikeda** (RM554718) | NovaConsultaScreen + Login | `feat/styles-forms` |
+| **Henrique Azevedo** (RM556707) | HomeScreen | `feat/styles-home` |
+| **Victoria Moura** (RM555474) | CadastroPaciente + MinhasConsultas | `feat/styles-paciente` |
 
 ---
 
