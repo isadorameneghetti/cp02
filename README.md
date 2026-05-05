@@ -58,12 +58,6 @@ Aplicativo mobile de **Sistema de Consultas Médicas** desenvolvido em React Nat
 ### Passos
 
 ```bash
-# Clone o repositório
-git clone https://github.com/isadorameneghetti/consultas-mobile.git
-
-# Acesse a pasta
-cd consultas-mobile
-
 # Instale as dependências
 npm install
 
