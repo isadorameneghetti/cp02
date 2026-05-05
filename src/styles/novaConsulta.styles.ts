@@ -1,19 +1,6 @@
-/**
- * =============================================================================
- * ESTILOS: NovaConsultaScreen
- * =============================================================================
- * 
- * Responsável: Gustavo Ikeda (RM554718)
- * Tela: NovaConsultaScreen
- * 
- * Estilos para a tela de agendamento de nova consulta
- * 
- * =============================================================================
- */
-
 import { StyleSheet } from "react-native";
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f5f5f5",
@@ -54,5 +41,3 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
-
-export default styles;

@@ -1,191 +1,265 @@
+/**
+ * ConsultaDetalhesScreen - Detalhes da Consulta
+ * Exibe informações completas de uma consulta específica
+ */
+
 import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView, TouchableOpacity, Alert, StyleSheet } from "react-native";
+import {
+ View,
+ Text,
+ StyleSheet,
+ ScrollView,
+ TouchableOpacity,
+ Alert,
+} from "react-native";
+import { Consulta } from "../types";
+import { Loading } from "../components";
+import consultasService from "../services/consultasService";
+import {
+ formatarData,
+ formatarHorario,
+ obterCorStatus,
+ obterTextoStatus,
+} from "../utils/formatters";
 
 type ConsultaDetalhesScreenProps = {
-  navigation: any;
-  route: any;
+ navigation: any;
+ route: any;
 };
 
-export default function ConsultaDetalhesScreen({ navigation, route }: ConsultaDetalhesScreenProps) {
-  const { consultaId } = route.params;
-  const [consulta, setConsulta] = useState<any>(null);
+export default function ConsultaDetalhesScreen({
+ navigation,
+ route,
+}: ConsultaDetalhesScreenProps) {
+ const { consultaId } = route.params;
+ const [consulta, setConsulta] = useState<Consulta | null>(null);
+ const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Dados mockados para teste (substitua pelos dados reais depois)
-    setConsulta({
-      id: consultaId,
-      pacienteNome: "Carlos Andrade",
-      medicoNome: "Dr. Roberto Silva",
-      especialidade: "Cardiologia",
-      data: "10/03/2026",
-      horario: "09:00",
-      status: "agendada",
-      observacoes: "Consulta de rotina para acompanhamento cardíaco",
-    });
-  }, [consultaId]);
+ useEffect(() => {
+ carregarConsulta();
+ }, [consultaId]);
 
-  function handleConfirmar() {
-    Alert.alert(
-      "Confirmar Consulta",
-      "Deseja confirmar esta consulta?",
-      [
-        { text: "Cancelar", style: "cancel" },
-        {
-          text: "Confirmar",
-          onPress: () => {
-            Alert.alert("Sucesso", "Consulta confirmada com sucesso!");
-          },
-        },
-      ]
-    );
-  }
+ async function carregarConsulta() {
+ setLoading(true);
+ try {
+ const dados = await consultasService.obterConsulta(consultaId);
+ setConsulta(dados);
+ } catch (error) {
+ console.error("Erro ao carregar consulta:", error);
+ Alert.alert("Erro", "Não foi possível carregar a consulta");
+ navigation.goBack();
+ } finally {
+ setLoading(false);
+ }
+ }
 
-  function handleCancelar() {
-    Alert.alert(
-      "Cancelar Consulta",
-      "Tem certeza que deseja cancelar esta consulta?",
-      [
-        { text: "Não", style: "cancel" },
-        {
-          text: "Sim, cancelar",
-          style: "destructive",
-          onPress: () => {
-            Alert.alert("Sucesso", "Consulta cancelada com sucesso!");
-          },
-        },
-      ]
-    );
-  }
+ async function handleConfirmar() {
+ if (!consulta) return;
+ Alert.alert(
+ "Confirmar Consulta",
+ "Deseja confirmar esta consulta?",
+ [
+ { text: "Cancelar", style: "cancel" },
+ {
+ text: "Confirmar",
+ onPress: async () => {
+ try {
+ await consultasService.confirmarConsulta(consulta.id);
+ carregarConsulta();
+ } catch (error) {
+ Alert.alert("Erro", "Não foi possível confirmar a consulta");
+ }
+ },
+ },
+ ]
+ );
+ }
 
-  if (!consulta) {
-    return (
-      <View style={styles.centered}>
-        <Text>Carregando...</Text>
-      </View>
-    );
-  }
+ async function handleCancelar() {
+ if (!consulta) return;
+ Alert.alert(
+ "Cancelar Consulta",
+ "Tem certeza que deseja cancelar esta consulta?",
+ [
+ { text: "Não", style: "cancel" },
+ {
+ text: "Sim, cancelar",
+ style: "destructive",
+ onPress: async () => {
+ try {
+ await consultasService.cancelarConsulta(consulta.id);
+ carregarConsulta();
+ } catch (error) {
+ Alert.alert("Erro", "Não foi possível cancelar a consulta");
+ }
+ },
+ },
+ ]
+ );
+ }
 
-  return (
-    <ScrollView style={styles.container}>
-      <View style={styles.card}>
-        {/* Badge de Status */}
-        <View style={[styles.badge, { backgroundColor: "#FFA500" }]}>
-          <Text style={styles.badgeText}>{consulta.status.toUpperCase()}</Text>
-        </View>
+ if (loading || !consulta) {
+ return <Loading mensagem="Carregando detalhes..." />;
+ }
 
-        {/* Paciente */}
-        <Text style={styles.label}>👤 Paciente</Text>
-        <Text style={styles.value}>{consulta.pacienteNome}</Text>
+ const corStatus = obterCorStatus(consulta.status);
 
-        {/* Médico */}
-        <Text style={styles.label}>👨‍⚕️ Médico</Text>
-        <Text style={styles.value}>{consulta.medicoNome}</Text>
-        <Text style={styles.subValue}>{consulta.especialidade}</Text>
+ return (
+ <View style={styles.container}>
+ <ScrollView contentContainerStyle={styles.scrollContent}>
+ {/* Status Badge */}
+ <View style={[styles.statusBadge, { backgroundColor: corStatus }]}>
+ <Text style={styles.statusTexto}>
+ {obterTextoStatus(consulta.status)}
+ </Text>
+ </View>
 
-        {/* Data e Horário */}
-        <Text style={styles.label}>📅 Data</Text>
-        <Text style={styles.value}>{consulta.data}</Text>
+ {/* Seção Paciente */}
+ <View style={styles.secao}>
+ <Text style={styles.secaoTitulo}>👤 Paciente</Text>
+ <View style={styles.card}>
+ <Text style={styles.valor}>{consulta.pacienteNome}</Text>
+ </View>
+ </View>
 
-        <Text style={styles.label}>⏰ Horário</Text>
-        <Text style={styles.value}>{consulta.horario}</Text>
+ {/* Seção Médico */}
+ <View style={styles.secao}>
+ <Text style={styles.secaoTitulo}>👨‍⚕️ Médico</Text>
+ <View style={styles.card}>
+ <Text style={styles.valor}>{consulta.medicoNome}</Text>
+ <Text style={styles.label}>{consulta.especialidade}</Text>
+ </View>
+ </View>
 
-        {/* Observações */}
-        {consulta.observacoes && (
-          <>
-            <Text style={styles.label}>📝 Observações</Text>
-            <Text style={styles.obsValue}>{consulta.observacoes}</Text>
-          </>
-        )}
+ {/* Seção Data e Hora */}
+ <View style={styles.secao}>
+ <Text style={styles.secaoTitulo}>📅 Agendamento</Text>
+ <View style={styles.card}>
+ <View style={styles.row}>
+ <View style={styles.coluna}>
+ <Text style={styles.label}>Data</Text>
+ <Text style={styles.valor}>{formatarData(consulta.data)}</Text>
+ </View>
+ <View style={styles.coluna}>
+ <Text style={styles.label}>Horário</Text>
+ <Text style={styles.valor}>{formatarHorario(consulta.horario)}</Text>
+ </View>
+ </View>
+ </View>
+ </View>
 
-        {/* Botões */}
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={[styles.button, styles.buttonConfirm]} onPress={handleConfirmar}>
-            <Text style={styles.buttonText}>✓ Confirmar Consulta</Text>
-          </TouchableOpacity>
+ {/* Seção Observações */}
+ {consulta.observacoes && (
+ <View style={styles.secao}>
+ <Text style={styles.secaoTitulo}>📝 Observações</Text>
+ <View style={styles.card}>
+ <Text style={styles.observacoes}>{consulta.observacoes}</Text>
+ </View>
+ </View>
+ )}
 
-          <TouchableOpacity style={[styles.button, styles.buttonCancel]} onPress={handleCancelar}>
-            <Text style={styles.buttonText}>✕ Cancelar Consulta</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </ScrollView>
-  );
+ {/* Botões de Ação */}
+ <View style={styles.acoes}>
+ {consulta.status === "agendada" && (
+ <TouchableOpacity
+ style={[styles.botao, styles.botaoConfirmar]}
+ onPress={handleConfirmar}
+ >
+ <Text style={styles.botaoTexto}>✓ Confirmar Consulta</Text>
+ </TouchableOpacity>
+ )}
+
+ {(consulta.status === "agendada" || consulta.status === "confirmada") && (
+ <TouchableOpacity
+ style={[styles.botao, styles.botaoCancelar]}
+ onPress={handleCancelar}
+ >
+ <Text style={styles.botaoTexto}>✕ Cancelar Consulta</Text>
+ </TouchableOpacity>
+ )}
+ </View>
+ </ScrollView>
+ </View>
+ );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f5f5f5",
-  },
-  centered: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  card: {
-    backgroundColor: "#fff",
-    margin: 16,
-    padding: 20,
-    borderRadius: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  badge: {
-    alignSelf: "flex-start",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginBottom: 16,
-  },
-  badgeText: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 12,
-    textTransform: "uppercase",
-  },
-  label: {
-    fontSize: 12,
-    color: "#666",
-    marginTop: 12,
-    marginBottom: 4,
-  },
-  value: {
-    fontSize: 16,
-    color: "#333",
-    fontWeight: "600",
-  },
-  subValue: {
-    fontSize: 14,
-    color: "#666",
-    marginTop: 2,
-  },
-  obsValue: {
-    fontSize: 14,
-    color: "#555",
-    fontStyle: "italic",
-    marginTop: 4,
-  },
-  buttonContainer: {
-    marginTop: 24,
-    gap: 12,
-  },
-  button: {
-    paddingVertical: 14,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  buttonConfirm: {
-    backgroundColor: "#4CAF50",
-  },
-  buttonCancel: {
-    backgroundColor: "#F44336",
-  },
-  buttonText: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 16,
-  },
+ container: {
+ flex: 1,
+ backgroundColor: "#f5f5f5",
+ },
+ scrollContent: {
+ padding: 20,
+ },
+ statusBadge: {
+ alignSelf: "center",
+ paddingHorizontal: 24,
+ paddingVertical: 12,
+ borderRadius: 24,
+ marginBottom: 24,
+ },
+ statusTexto: {
+ color: "#fff",
+ fontWeight: "bold",
+ fontSize: 16,
+ textTransform: "uppercase",
+ },
+ secao: {
+ marginBottom: 20,
+ },
+ secaoTitulo: {
+ fontSize: 18,
+ fontWeight: "bold",
+ color: "#333",
+ marginBottom: 12,
+ },
+ card: {
+ backgroundColor: "#fff",
+ borderRadius: 12,
+ padding: 16,
+ boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+ elevation: 3,
+ },
+ row: {
+ flexDirection: "row",
+ gap: 16,
+ },
+ coluna: {
+ flex: 1,
+ },
+ label: {
+ fontSize: 12,
+ color: "#666",
+ marginBottom: 4,
+ },
+ valor: {
+ fontSize: 18,
+ color: "#333",
+ fontWeight: "600",
+ },
+ observacoes: {
+ fontSize: 16,
+ color: "#555",
+ lineHeight: 24,
+ },
+ acoes: {
+ gap: 12,
+ marginTop: 12,
+ },
+ botao: {
+ paddingVertical: 16,
+ borderRadius: 12,
+ alignItems: "center",
+ },
+ botaoConfirmar: {
+ backgroundColor: "#4CAF50",
+ },
+ botaoCancelar: {
+ backgroundColor: "#F44336",
+ },
+ botaoTexto: {
+ color: "#fff",
+ fontWeight: "bold",
+ fontSize: 16,
+ },
 });

@@ -1,19 +1,6 @@
-/**
- * =============================================================================
- * ESTILOS: Login
- * =============================================================================
- * 
- * Responsável: Gustavo Ikeda (RM554718)
- * Tela: Login
- * 
- * Estilos para a tela de login
- * 
- * =============================================================================
- */
+import {StyleSheet} from "react-native";
 
-import { StyleSheet } from "react-native";
-
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f5f5f5",
@@ -33,5 +20,3 @@ const styles = StyleSheet.create({
     color: "#666",
   },
 });
-
-export default styles;
